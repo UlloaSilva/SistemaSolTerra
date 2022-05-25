@@ -1,0 +1,13 @@
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\bin\Debug\SistemaRestaurante.exe.config
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\bin\Debug\SistemaRestaurante.exe
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\bin\Debug\SistemaRestaurante.pdb
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.csproj.AssemblyReference.cache
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.csproj.SuggestedBindingRedirects.cache
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.Properties.Resources.resources
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.csproj.GenerateResource.cache
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.csproj.CoreCompileInputs.cache
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.exe
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.pdb
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.Login.resources
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.Dashboard.resources
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.formClientes.resources
