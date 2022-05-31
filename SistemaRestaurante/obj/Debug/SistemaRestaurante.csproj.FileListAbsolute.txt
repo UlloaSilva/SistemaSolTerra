@@ -11,3 +11,4 @@ C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\o
 C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.Login.resources
 C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.Dashboard.resources
 C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.formClientes.resources
+C:\Users\erwin\Documents\Clases\DataBase\SistemaRestaurante\SistemaRestaurante\obj\Debug\SistemaRestaurante.View.formPlatillos.resources

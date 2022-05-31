@@ -50,14 +50,18 @@ namespace SistemaRestaurante.View
             this.MainMenuStrip = MnStrip;
             Controls.Add(MnStrip);
         }
-         
-        private void clickOnSubMenu(object sender, System.EventArgs e)
+
+        public void clickOnSubMenu(object sender, System.EventArgs e)
         {
+           
             ToolStripMenuItem subMenuSelect = (ToolStripMenuItem)sender;
 
             Assembly asm = Assembly.GetEntryAssembly();
 
-            Type element = asm.GetType(subMenuSelect.Name + "." + asm.GetName().Name);
+            Type element = asm.GetType(string.Format("{0}.{1}", "SistemaRestaurante.View", subMenuSelect.Name));
+
+            
+
 
             if (element == null)
             {
@@ -65,12 +69,25 @@ namespace SistemaRestaurante.View
             }
             else
             {
-                subMenuForm = (Form)Activator.CreateInstance(element);
-                subMenuForm.MdiParent = this;
-                subMenuForm.Show();
+                Form form = (Form)Activator.CreateInstance(element);
+                OpenForm(form);
             }
 
+
         }
+
+        private void OpenForm(object childForm)
+        {
+            if (this.PnContenedor.Controls.Count > 0)
+                this.PnContenedor.Controls.RemoveAt(0);
+            subMenuForm = childForm as Form;
+            subMenuForm.TopLevel = false;
+            subMenuForm.Dock = DockStyle.Fill;
+            this.PnContenedor.Controls.Add(subMenuForm);
+            this.PnContenedor.Tag = subMenuForm;
+            subMenuForm.Show();
+        }
+
 
     }
 

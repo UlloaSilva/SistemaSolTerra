@@ -1,4 +1,3 @@
-
 --DBCC CHECKIDENT('Usuario', RESEED, 0) -- Resetea el IDENTITY Comenzando de 0
 --CREATE TYPE NuevoTipoDeDato FROM INT NOT NULL -- Creamos un tipo de dato nuevo con cualquier valor (INT, NVARCHAR, FLOAT, DECIMAL...)
 
@@ -490,7 +489,6 @@ INNER JOIN Area ar ON ar.IdArea = ms.IdArea
 INNER JOIN Empleado em ON em.IdEmpleado = dt.IdEmpleado
 
 GO
-
 ---------------------------------- INSERT ON TABLES ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 INSERT INTO Departamento(NombreDepartamento) VALUES ('Boaco')
@@ -728,79 +726,16 @@ GO
 ---------------------------------- STORED PROCEDURE ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---VISTAS MENU XML
-CREATE PROCEDURE "XML"
-@IdUser "INT"
-AS
-BEGIN
-SELECT 
-	(SELECT VistaMenu.Nombre, VistaMenu.Icon,
-		(SELECT  
-			Sm.Nombre, Sm.NombreFormulario 
-		FROM Programmer.Permiso Pr INNER JOIN Programmer.Rol Rl ON rl.IdRol = Pr.IdRol
-		INNER JOIN Programmer.SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
-		INNER JOIN Programmer.Menu Mn ON Mn.IdMenu = Sm.IdMenu
-		INNER JOIN Programmer.Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
-		WHERE U.IdUsuario = Us.IdUsuario AND Sm.IdMenu = VistaMenu.IdMenu
-		FOR XML PATH('SubMenu'), TYPE) AS [DetalleSubMenu]	
-	FROM
-		(
-			SELECT DISTINCT 
-				Mn.* 
-			FROM Programmer.Permiso Pr INNER JOIN Programmer.Rol Rl ON rl.IdRol = Pr.IdRol
-			INNER JOIN Programmer.SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
-			INNER JOIN Programmer.Menu Mn ON Mn.IdMenu = Sm.IdMenu
-			INNER JOIN Programmer.Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
-			WHERE U.IdUsuario = Us.IdUsuario
-		)VistaMenu
-	FOR XML PATH('Menu'), TYPE) AS [DetalleMenu]
-
-FROM Programmer.Usuario Us 
-WHERE Us.IdUsuario = @IdUser
-FOR XML PATH(''), ROOT('Permisos')
-END
--------------------------- XML ---------------------------------------
---EXEC XML 1
-EXEC XML 2
-
-
------------------------------------------------------------------------
--- Menu
-SELECT DISTINCT 
-	Mn.* 
-FROM Programmer.Permiso Pr INNER JOIN Programmer.Rol Rl ON Rl.IdRol = Pr.IdRol 
-INNER JOIN Programmer.SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
-INNER JOIN Programmer.Menu Mn ON Mn.IdMenu = Sm.IdMenu
-INNER JOIN Programmer.Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
-WHERE U.IdUsuario = 1
-
-GO
--- SubMenu
-SELECT DISTINCT 
-	Sm.Nombre, Sm.NombreFormulario 
-FROM Programmer.Permiso Pr INNER JOIN Programmer.Rol Rl ON rl.IdRol = Pr.IdRol
-INNER JOIN Programmer.SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
-INNER JOIN Programmer.Menu Mn ON Mn.IdMenu = Sm.IdMenu
-INNER JOIN Programmer.Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
-WHERE U.IdUsuario = 2
-
-
-
-
-
-
-GO
-
 --REGISTRAR USUARIO
-CREATE PROCEDURE [dbo]."RegistrarUsuario"
+CREATE PROCEDURE "RegistrarUsuario"
 @IdEmpleado "INT", @User NVARCHAR(80), @Rol "INT", @Pass NVARCHAR(150)
 AS
 IF EXISTS (SELECT em.IdEmpleado FROM [dbo]."Empleado" em WHERE em.IdEmpleado = @IdEmpleado AND em.Estado = 'Activo')
 	BEGIN
-		INSERT INTO [dbo].[Usuario] VALUES
+		INSERT INTO [Usuario] VALUES
 		(@IdEmpleado, @User, ENCRYPTBYPASSPHRASE(@Pass, @Pass), @Rol, 'Activo', 'Desactualizada')
 	END
-ELSE
+ELSE 
 	BEGIN
 		PRINT ('EMPLEADO DESHABILITADO')
 	END
@@ -810,12 +745,11 @@ GO
 EXEC RegistrarUsuario 1, 'Ulloa Silva', 1, 'Sol25Terra'
 EXEC RegistrarUsuario 3, 'JuanD', 2, 'Sol25Terra'
 
-
 -----------------------------------------------------------------------------
 GO
 
 --VALIDAR ACCESO
-CREATE PROCEDURE [dbo]."Acceso"
+CREATE PROCEDURE "Acceso"
 @User NVARCHAR(80), @Pass NVARCHAR(150)
 AS
 IF EXISTS (SELECT Us.NombreUsuario FROM Usuario Us WHERE
@@ -841,17 +775,16 @@ ELSE
 
 GO
 -------------------------- VALIDACIONES ---------------------------------------
-EXEC Programmer.Acceso 'Ulloa Silva', 'Sol25Terra'
+EXEC Acceso 'Ulloa Silva', 'Sol25Terra'
 EXEC Acceso 'JuanD', 'Sol25Terra'
 
 -------------------------------------------------------------------------------
 GO
-
 --EDITAR USUARIO
-CREATE PROCEDURE [dbo]."Ed_Usuario"
+CREATE PROCEDURE "Ed_Usuario"
 @IdUser "INT", @IdEmpleado "INT", @User NVARCHAR(80), @Rol "INT", @Pass NVARCHAR(150)
 AS
-UPDATE [dbo]."Usuario" SET
+UPDATE "Usuario" SET
 	IdEmpleado = @IdEmpleado,
 	NombreUsuario = @User,
 	IdRol = @Rol,
@@ -867,19 +800,19 @@ GO
 GO
 
 --CAMBIAR ESTADO USUARIO
-CREATE PROCEDURE [dbo]."Cb_Es_Usuario"
+CREATE PROCEDURE "Cb_Es_Usuario"
 @IdUser "INT"
 AS
 DECLARE @Status VARCHAR(30)
-SET @Status = (SELECT Us.EstadoUsuario FROM [dbo]."Usuario" Us WHERE Us.IdUsuario = @IdUser)
+SET @Status = (SELECT Us.EstadoUsuario FROM "Usuario" Us WHERE Us.IdUsuario = @IdUser)
 IF (@Status = 'Activo')
 	BEGIN
-		UPDATE [dbo]."Usuario" SET EstadoUsuario = 'Deshabilitado'
+		UPDATE "Usuario" SET EstadoUsuario = 'Deshabilitado'
 		WHERE IdUsuario = @IdUser
 	END
 ELSE
 	BEGIN
-		UPDATE [dbo]."Usuario" SET EstadoUsuario = 'Activo'
+		UPDATE "Usuario" SET EstadoUsuario = 'Activo'
 		WHERE IdUsuario = @IdUser
 	END
 
@@ -891,19 +824,19 @@ GO
 GO
 
 --CAMBIAR ESTADO CONTRASEÑA USUARIO
-CREATE PROCEDURE [dbo]."Cb_Es_Pass_Usuario"
+CREATE PROCEDURE "Cb_Es_Pass_Usuario"
 @IdUser "INT"
 AS
 DECLARE @Status VARCHAR(30)
-SET @Status = (SELECT Us.EstadoContraseña FROM [dbo]."Usuario" Us WHERE Us.IdUsuario = @IdUser)
+SET @Status = (SELECT Us.EstadoContraseña FROM "Usuario" Us WHERE Us.IdUsuario = @IdUser)
 IF (@Status = 'Actualizada')
 	BEGIN
-		UPDATE [dbo]."Usuario" SET EstadoContraseña = 'Desactualizada'
+		UPDATE "Usuario" SET EstadoContraseña = 'Desactualizada'
 		WHERE IdUsuario = @IdUser
 	END
 ELSE
 	BEGIN
-		UPDATE [dbo]."Usuario" SET EstadoContraseña = 'Actualizada'
+		UPDATE "Usuario" SET EstadoContraseña = 'Actualizada'
 		WHERE IdUsuario = @IdUser
 	END
 
@@ -913,19 +846,47 @@ GO
 
 -----------------------------------------------------------------------------------------
 GO
+--VISTAS MENU XML
+CREATE PROCEDURE "XML"
+@IdUser "INT"
+AS
+BEGIN
+SELECT 
+	(SELECT VistaMenu.Nombre, VistaMenu.Icon,
+		(SELECT  
+			Sm.Nombre, Sm.NombreFormulario 
+		FROM Permiso Pr INNER JOIN Rol Rl ON rl.IdRol = Pr.IdRol
+		INNER JOIN SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
+		INNER JOIN Menu Mn ON Mn.IdMenu = Sm.IdMenu
+		INNER JOIN Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
+		WHERE U.IdUsuario = Us.IdUsuario AND Sm.IdMenu = VistaMenu.IdMenu
+		FOR XML PATH('SubMenu'), TYPE) AS [DetalleSubMenu]	
+	FROM
+		(
+			SELECT DISTINCT 
+				Mn.* 
+			FROM Permiso Pr INNER JOIN Rol Rl ON rl.IdRol = Pr.IdRol
+			INNER JOIN SubMenu Sm ON Sm.IdSubMenu = Pr.IdSubMenu
+			INNER JOIN Menu Mn ON Mn.IdMenu = Sm.IdMenu
+			INNER JOIN Usuario U ON U.IdRol = Pr.IdRol AND Pr.Estado = 'Activo'
+			WHERE U.IdUsuario = Us.IdUsuario
+		)VistaMenu
+	FOR XML PATH('Menu'), TYPE) AS [DetalleMenu]
 
-/*
-SELECT  
-	dtp.IdDetallePlato,
-	pl.NombrePlato,
-	ins.NombreIngrediente,
-	(ROUND(dtp.MedidaIngrediente, 2)) + '' AS [Cantidad Ingredientes],
-	ROUND((ins.CantidadComprada - dtp.MedidaIngrediente), 2) AS [Total de Insumo]
-FROM DetallePlato dtp INNER JOIN Plato pl ON pl.IdPlato = dtp.IdPlato
-INNER JOIN Insumo ins ON ins.IdInsumo = dtp.IdInsumo
-ORDER BY pl.NombrePlato ASC
-*/
+FROM Usuario Us 
+WHERE Us.IdUsuario = @IdUser
+FOR XML PATH(''), ROOT('Permisos')
+END
+-------------------------- XML ---------------------------------------
+--EXEC XML 1
+EXEC XML 2
 
+use SolTerraRestauran
+-----------------------------------------------------------------------
+GO
+
+---------------------------------- LOGIN AND USERS ------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 GO
 --LOGIN Y USUARIO
 CREATE LOGIN adminSolTerra WITH PASSWORD = 'Sol7080Terra'
@@ -934,59 +895,11 @@ EXEC SP_ADDUSER adminSolTerra, adminSolTerra
 EXEC SP_ADDUSER ProgramadorDB, Programmer
 
 GO
---SCHEMAS
-GO
-CREATE SCHEMA Programmer
-GO
-
 --ROL
 CREATE ROLE sistemaAdministrador
-GO
---PERMISOS TRANSFERENCIA DEL DBO A PROGRAMMER
-GRANT CREATE TABLE TO Programmer
-GRANT CREATE VIEW TO Programmer
-GRANT CREATE PROCEDURE TO Programmer
-GRANT CREATE FUNCTION TO Programmer
 
 GO
-ALTER SCHEMA Programmer TRANSFER dbo.Area
-ALTER SCHEMA Programmer TRANSFER dbo.Categoria
-ALTER SCHEMA Programmer TRANSFER dbo.Cliente
-ALTER SCHEMA Programmer TRANSFER dbo.Departamento
-ALTER SCHEMA Programmer TRANSFER dbo.Det_Empleado
-ALTER SCHEMA Programmer TRANSFER dbo.DetalleFactura
-ALTER SCHEMA Programmer TRANSFER dbo.DetalleOrden
-ALTER SCHEMA Programmer TRANSFER dbo.DetallePlato
-ALTER SCHEMA Programmer TRANSFER dbo.Empleado
-ALTER SCHEMA Programmer TRANSFER dbo.Factura
-ALTER SCHEMA Programmer TRANSFER dbo.Insumo
-ALTER SCHEMA Programmer TRANSFER dbo.Menu
-ALTER SCHEMA Programmer TRANSFER dbo.Mesa
-ALTER SCHEMA Programmer TRANSFER dbo.Orden
-ALTER SCHEMA Programmer TRANSFER dbo.Permiso
-ALTER SCHEMA Programmer TRANSFER dbo.Plato
-ALTER SCHEMA Programmer TRANSFER dbo.Proveedor
-ALTER SCHEMA Programmer TRANSFER dbo.Rol
-ALTER SCHEMA Programmer TRANSFER dbo.SubMenu
-ALTER SCHEMA Programmer TRANSFER dbo.Sucursal
-ALTER SCHEMA Programmer TRANSFER dbo.Usuario
-ALTER SCHEMA Programmer TRANSFER dbo.Acceso
-ALTER SCHEMA Programmer TRANSFER dbo.Ed_Usuario
-ALTER SCHEMA Programmer TRANSFER dbo.XML
-ALTER SCHEMA Programmer TRANSFER dbo.Cb_Es_Usuario
-ALTER SCHEMA Programmer TRANSFER dbo.Cb_Es_Pass_Usuario
-ALTER SCHEMA Programmer TRANSFER dbo.RegistrarUsuario
-ALTER SCHEMA Programmer TRANSFER dbo.DetallePlatos
-ALTER SCHEMA Programmer TRANSFER dbo.Empleados
-ALTER SCHEMA Programmer TRANSFER dbo.Insumos
-ALTER SCHEMA Programmer TRANSFER dbo.Mesas
-ALTER SCHEMA Programmer TRANSFER dbo.Ordenes
-ALTER SCHEMA Programmer TRANSFER dbo.Platos
-ALTER SCHEMA Programmer TRANSFER dbo.Proveedores
-ALTER SCHEMA Programmer TRANSFER dbo.Sucursales
-
+GRANT EXECUTE ON SCHEMA::dbo TO sistemaAdministrador
 GO
-GRANT EXECUTE ON SCHEMA::Programmer TO sistemaAdministrador
-GO
-sp_addrolemember sistemaAdministrador, adminSolTerra
+sp_addrolemember sistemaAdministrador, Programmer
 select @@servername
