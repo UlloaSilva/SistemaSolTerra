@@ -1,4 +1,4 @@
---DBCC CHECKIDENT('Usuario', RESEED, 0) -- Resetea el IDENTITY Comenzando de 0
+--DBCC CHECKIDENT('DetalleOrden', RESEED, 0) -- Resetea el IDENTITY Comenzando de 0
 --CREATE TYPE NuevoTipoDeDato FROM INT NOT NULL -- Creamos un tipo de dato nuevo con cualquier valor (INT, NVARCHAR, FLOAT, DECIMAL...)
 
 SET NOCOUNT ON
@@ -62,7 +62,6 @@ GO
 GO
  CREATE  INDEX "NombreEncargado" ON "dbo"."Sucursal"("NombreEncargado")
 GO
-
 CREATE TABLE "Empleado"
 (
 	"IdEmpleado" "INT" IDENTITY (1, 1) NOT NULL,
@@ -213,7 +212,7 @@ CREATE TABLE "Mesa"
 	"IdSucursal" "INT" NOT NULL FOREIGN KEY REFERENCES [dbo]."Sucursal"(Id_Sucursal),
 	"IdArea" "INT" NOT NULL FOREIGN KEY REFERENCES [dbo]."Area"(IdArea),
 	"CantidadAsientos" "INT" NOT NULL,
-	"Estado" NVARCHAR(50) NULL CHECK ("Estado" IN ('Habilitada', 'Deshabilitada'))
+	"Estado" NVARCHAR(50) NULL CHECK ("Estado" IN ('Habilitada', 'Deshabilitada', 'Reservada'))
 
 	CONSTRAINT "PK_Mesas" PRIMARY KEY CLUSTERED
 	(
@@ -232,12 +231,14 @@ CREATE TABLE "Cliente"
 	"PrimerApellido" NVARCHAR(20) NOT NULL,
 	"SegundoApellido" NVARCHAR(20) NULL,
 	"No_Cedula" NVARCHAR(30) NOT NULL,
-	"Telefono" VARCHAR(24) NULL
+	"Telefono" VARCHAR(24) NULL,
+	"Fecha" DATETIME NULL
 
 	CONSTRAINT "PK_Clientes" PRIMARY KEY CLUSTERED
 	(
 		"IdCliente"
-	)
+	),
+	CONSTRAINT UQ_Datos_Clientes UNIQUE (Telefono, No_Cedula)
 );
 GO
  CREATE  INDEX "PrimerNombre" ON "dbo"."Cliente"("PrimerNombre")
@@ -630,12 +631,12 @@ INSERT INTO DetallePlato (IdPlato, IdInsumo, MedidaIngrediente) VALUES
 GO
 --
 --
-INSERT INTO Cliente (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, No_Cedula, Telefono) VALUES
-('Marcos', 'Antonio', 'Castro', '', '983-080789-0938I', '87940387'),
-('Lian', 'Daniel', 'Marenco', 'Treminio', '968-100488-0348S', '84945787'),
-('Franchesco', 'José', 'Mungia', '', '453-111188-2834M', '57840347'),
-('Abelardo', 'Fretsh', 'Luque', '', '103-080599-0328Y', '84540287'),
-('Eliseo', 'de Jesús', 'Artola', '', '763-080500-0838P', '82940767')
+INSERT INTO Cliente (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, No_Cedula, Telefono, Fecha) VALUES
+('Marcos', 'Antonio', 'Castro', '', '983-080789-0938I', '87940387', CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107)),
+('Lian', 'Daniel', 'Marenco', 'Treminio', '968-100488-0348S', '84945787', CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107)),
+('Franchesco', 'José', 'Mungia', '', '453-111188-2834M', '57840347', CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107)),
+('Abelardo', 'Fretsh', 'Luque', '', '103-080599-0328Y', '84540287', CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107)),
+('Eliseo', 'de Jesús', 'Artola', '', '763-080500-0838P', '82940767', CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107))
 
 GO
 --
@@ -844,7 +845,7 @@ GO
 -------------------------- CAMBIAR ESTADO CONTRASEÑA USUARIO ---------------------------------------
 
 
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 GO
 --VISTAS MENU XML
 CREATE PROCEDURE "XML"
@@ -878,12 +879,223 @@ WHERE Us.IdUsuario = @IdUser
 FOR XML PATH(''), ROOT('Permisos')
 END
 -------------------------- XML ---------------------------------------
---EXEC XML 1
+EXEC XML 1
 EXEC XML 2
 
-use SolTerraRestauran
+
 -----------------------------------------------------------------------
+
 GO
+--VISTAS CLIENTES
+CREATE PROC "MS_Clientes" AS
+SELECT 
+	Cl.IdCliente AS [Id Cliente],
+	Cl.PrimerNombre +' '+ Cl.SegundoNombre +' '+ Cl.PrimerApellido +' '+ Cl.SegundoApellido AS [Nombre Cliente],
+	Cl.No_Cedula AS [Cedula],
+	Cl.Telefono AS [Telefono], 
+	CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107) AS [Fecha Registro]
+FROM Cliente Cl
+GO
+-------------------------- VISTAS CLIENTES ---------------------------------------
+EXEC "MS_Clientes"
+
+----------------------------------------------------------------------------------
+GO
+
+-- REGISTRAR CLIENTES
+CREATE PROC "RG_Clientes"
+@P_Nombre NVARCHAR(20), @S_Nombre NVARCHAR(20), @P_Apellido NVARCHAR(20), @S_Apellido NVARCHAR(20),
+@No_Cedula NVARCHAR(30), @No_Telefono VARCHAR(24)
+AS
+INSERT INTO Cliente (PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido, No_Cedula, Telefono) VALUES
+(@P_Nombre, @S_Nombre, @P_Apellido, @S_Apellido, @No_Cedula, @No_Telefono)
+GO
+-------------------------- REGISTRAR CLIENTES ---------------------------------------
+EXEC "RG_Clientes" 'Lester', 'Jose', 'Romero', 'Garcia', '002-071200-9043E', '88953542'
+
+----------------------------------------------------------------------------------
+GO
+
+-- EDITAR CLIENTES
+CREATE PROC "ED_Clientes"
+@IdCliente "INT", @P_Nombre NVARCHAR(20), @S_Nombre NVARCHAR(20), @P_Apellido NVARCHAR(20), @S_Apellido NVARCHAR(20),
+@No_Cedula NVARCHAR(30), @No_Telefono VARCHAR(24)
+AS
+UPDATE Cliente SET
+PrimerNombre = @P_Nombre,
+SegundoNombre = @S_Nombre,
+PrimerApellido = @P_Apellido,
+SegundoApellido = @S_Apellido,
+No_Cedula = @No_Cedula,
+Telefono = @No_Telefono
+WHERE IdCliente = @IdCliente
+GO
+-------------------------- EDITAR CLIENTES ---------------------------------------
+--EXEC "ED_Clientes" 2, 'Mario', 'Abel', 'Baca', 'Garcia', '003-071299-9025T', '84953642'
+
+----------------------------------------------------------------------------------
+GO
+--VISTA CLIENTE BY ID
+CREATE PROC "VS_ID_Cliente"
+@IdCliente "INT"
+AS
+SELECT 
+	Cl.PrimerNombre,
+	Cl.SegundoNombre,
+	Cl.PrimerApellido,
+	Cl.SegundoApellido,
+	Cl.No_Cedula,
+	Cl.Telefono
+FROM Cliente Cl
+WHERE Cl.IdCliente = @IdCliente
+GO
+-------------------------- VISTA CLIENTE BY ID ---------------------------------------
+EXEC "VS_ID_Cliente" 2
+
+----------------------------------------------------------------------------------
+GO
+-- BUSCAR CLIENTE SCROLL
+CREATE PROC "BS_Cliente_SC"
+@Element NVARCHAR(100)
+AS
+SELECT
+	Cl.PrimerNombre +' '+ Cl.SegundoNombre +' '+ Cl.PrimerApellido +' '+ Cl.SegundoApellido AS [Nombre Cliente],
+	Cl.No_Cedula AS [Cedula],
+	Cl.Telefono AS [Telefono],
+	CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107) AS [Fecha Registro]
+FROM Cliente Cl WHERE
+					Cl.PrimerNombre LIKE @Element + '%' OR
+					Cl.SegundoNombre LIKE @Element + '%' OR
+					Cl.PrimerApellido LIKE @Element + '%' OR
+					Cl.SegundoApellido LIKE @Element + '%' OR
+					Cl.No_Cedula LIKE @Element + '%' OR
+					Cl.Telefono LIKE @Element + '%' OR
+					CONVERT(VARCHAR(110),DATEADD(YEAR,0,GETDATE()),107) LIKE @Element + '%'
+
+
+
+EXEC "BS_Cliente_SC" 'Marco'
+
+
+
+
+
+		-- (SELECT DISTINCT
+		-- 	Sl.NombreSucursal, Sl.NombreEncargado
+		-- FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+		-- INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+		-- INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+		-- INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+		-- INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+		-- WHERE Us.IdUsuario = U.IdUsuario AND Sl.Id_Sucursal = VistaMesa.IdSucursal
+		-- FOR XML PATH('SucursalMesas'), TYPE) AS [DetalleSucMesa],
+
+		-- (SELECT DISTINCT
+		-- 	Ar.NombreArea, Ar.CantidadClientes
+		-- FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+		-- INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+		-- INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+		-- INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+		-- INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+		-- WHERE Us.IdUsuario = U.IdUsuario AND Ar.IdArea = VistaMesa.IdArea 
+		-- FOR XML PATH('AreaMesas'), TYPE) AS [DetalleAreMesa]
+
+
+
+SELECT
+	Ar.NombreArea, Ar.CantidadClientes
+FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+WHERE Us.IdUsuario = 1 
+
+
+SELECT
+	Sl.NombreSucursal, Sl.NombreEncargado
+FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+WHERE Us.IdUsuario = 1 
+
+SELECT
+	Ms.*
+FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+WHERE Us.IdUsuario = 1
+
+
+GO
+
+CREATE PROCEDURE "MesasXML"
+@IdUser "INT"
+AS
+BEGIN
+SELECT
+
+	(SELECT VistaMesa.CantidadAsientos, VistaMesa.Estado, 
+		(SELECT DISTINCT
+		 	Sl.NombreSucursal
+		 FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+		 INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+		 INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+		 INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+		 INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+		 WHERE Us.IdUsuario = U.IdUsuario AND Sl.Id_Sucursal = VistaMesa.IdSucursal
+		 FOR XML PATH('SucursalMesas'), TYPE) AS [DetalleSucMesa],
+
+		(SELECT DISTINCT
+		 	Ar.NombreArea
+		 FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+		 INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+		 INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+		 INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+		 INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+		 WHERE Us.IdUsuario = U.IdUsuario AND Ar.IdArea = VistaMesa.IdArea 
+		 FOR XML PATH('AreaMesas'), TYPE) AS [DetalleAreMesa]
+
+	FROM
+	(
+		SELECT
+			Ms.*, Sl.NombreSucursal, Ar.NombreArea, Ar.CantidadClientes
+		FROM Usuario Us INNER JOIN Empleado Em ON Em.IdEmpleado = Us.IdEmpleado AND Us.EstadoUsuario = 'Activo'
+		INNER JOIN Det_Empleado Dte ON Dte.IdEmpleado = Em.IdEmpleado
+		INNER JOIN Sucursal Sl ON Sl.Id_Sucursal = Dte.Id_Sucursal AND Sl.Estado = 'Abierto'
+		INNER JOIN Mesa Ms ON Ms.IdSucursal = Sl.Id_Sucursal 
+		INNER JOIN Area Ar ON Ar.IdArea = Ms.IdArea
+		WHERE Us.IdUsuario = U.IdUsuario
+	)VistaMesa
+	FOR XML PATH('Mesa'), TYPE) AS [DetalleMesa]
+FROM Usuario U 
+WHERE U.IdUsuario = @IdUser
+FOR XML PATH(''), ROOT('Usuarios')
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---------------------------------- LOGIN AND USERS ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,7 +106,12 @@ namespace SistemaRestaurante.Model
                 }
                 catch (Exception ex)
                 {
+                    Debug.WriteLine("Exception Message: " + ex.Message);
                     Permisos = new List<Menu>();
+                }
+                finally
+                {
+                    if (sqlConnection.State == ConnectionState.Open) sqlConnection.Close();
                 }
             }
 

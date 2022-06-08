@@ -19,17 +19,27 @@ namespace SistemaRestaurante.View
     {
         private int IdUser;
         private Form subMenuForm = new Form();
+        private static Screen screen = Screen.PrimaryScreen;
+        new private int Height = screen.Bounds.Width;
+        new private int Width = screen.Bounds.Height;
         public Dashboard(int idUser)
         {
             InitializeComponent();
+            FullScreen(Height, Width);
             this.IdUser = idUser;
         }
 
         private void Dashboard_Load(object sender, EventArgs e)
         {
+            openPermissions();
+            //OpenForm(new formMesas(IdUser));
+        }
+
+        private void openPermissions()
+        {
             List<Model.Menu> permisosEsp = MD_Usuario.ltsPermisos(IdUser);
 
-            MenuStrip MnStrip  = new MenuStrip();
+            MenuStrip MnStrip = new MenuStrip();
 
             foreach (Model.Menu menu in permisosEsp)
             {
@@ -56,7 +66,7 @@ namespace SistemaRestaurante.View
            
             ToolStripMenuItem subMenuSelect = (ToolStripMenuItem)sender;
 
-            Assembly asm = Assembly.GetEntryAssembly();
+            Assembly asm = Assembly.GetExecutingAssembly();
 
             Type element = asm.GetType(string.Format("{0}.{1}", "SistemaRestaurante.View", subMenuSelect.Name));
 
@@ -69,14 +79,22 @@ namespace SistemaRestaurante.View
             }
             else
             {
-                Form form = (Form)Activator.CreateInstance(element);
-                OpenForm(form);
+                if (element.Name == "formMesas")
+                {
+                    OpenForm(new formMesas(IdUser));
+                }
+                else
+                {
+                    Form form = (Form)Activator.CreateInstance(element);
+                    OpenForm(form);
+                }
+               
             }
 
 
         }
 
-        private void OpenForm(object childForm)
+        public void OpenForm(object childForm)
         {
             if (this.PnContenedor.Controls.Count > 0)
                 this.PnContenedor.Controls.RemoveAt(0);
@@ -88,6 +106,10 @@ namespace SistemaRestaurante.View
             subMenuForm.Show();
         }
 
+        private void FullScreen(int Height, int Width)
+        {
+            this.Size = new Size(Height, Width);
+        }
 
     }
 

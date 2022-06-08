@@ -46,8 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\CLL_Cliente.cs" />
+    <Compile Include="Controller\CLL_Mesas.cs" />
+    <Compile Include="Controller\CLL_Sucursal.cs" />
     <Compile Include="Controller\CLL_Usuario.cs" />
     <Compile Include="Model\Coneccion.cs" />
+    <Compile Include="Model\MD_Area.cs" />
+    <Compile Include="Model\MD_Clientes.cs" />
+    <Compile Include="Model\MD_Deparstamento.cs" />
+    <Compile Include="Model\MD_Mesas.cs" />
+    <Compile Include="Model\MD_Sucursal.cs" />
     <Compile Include="Model\MD_Usuario.cs" />
     <Compile Include="Model\Menu.cs" />
     <Compile Include="Model\SubMenu.cs" />
@@ -65,11 +73,29 @@
     <Compile Include="View\formClientes.Designer.cs">
       <DependentUpon>formClientes.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\formMesas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\formMesas.Designer.cs">
+      <DependentUpon>formMesas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\formOrdenes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\formOrdenes.Designer.cs">
+      <DependentUpon>formOrdenes.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\formPlatillos.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="View\formPlatillos.Designer.cs">
       <DependentUpon>formPlatillos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\formReservas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\formReservas.Designer.cs">
+      <DependentUpon>formReservas.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Login.cs">
       <SubType>Form</SubType>
@@ -92,8 +118,17 @@
     <EmbeddedResource Include="View\formClientes.resx">
       <DependentUpon>formClientes.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\formMesas.resx">
+      <DependentUpon>formMesas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\formOrdenes.resx">
+      <DependentUpon>formOrdenes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\formPlatillos.resx">
       <DependentUpon>formPlatillos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\formReservas.resx">
+      <DependentUpon>formReservas.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
@@ -117,7 +152,14 @@
     <Content Include="Icon\Catálogo.png" />
     <Content Include="Icon\Fondo.png" />
     <Content Include="Icon\icons8_account_30px.png" />
+    <Content Include="Icon\icons8_add_user_male_50px.png" />
+    <Content Include="Icon\icons8_cancel_50px.png" />
+    <Content Include="Icon\icons8_home_60px.png" />
     <Content Include="Icon\icons8_male_user_100px_1.png" />
+    <Content Include="Icon\icons8_registration_50px.png" />
+    <Content Include="Icon\icons8_save_close_50px.png" />
+    <Content Include="Icon\icons8_search_32px.png" />
+    <Content Include="Icon\mesas.png" />
     <Content Include="Icon\icons8_thumbs_up_30px.png" />
     <Content Include="Icon\icons8_unlock_private_30px.png" />
     <Content Include="Icon\Operaciones.png" />
